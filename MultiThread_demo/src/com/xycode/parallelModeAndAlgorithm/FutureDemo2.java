@@ -8,7 +8,7 @@ import java.util.concurrent.FutureTask;
 
 
 public class FutureDemo2 {
-	static class RealData implements Callable<String>{//jdk支持的future模式
+	static class RealData implements Callable<String>{
 		String para;
 		public RealData(String para) {
 			super();
@@ -43,9 +43,10 @@ public class FutureDemo2 {
 		}
 		System.out.println("Handle Others Finished!");
 		
-		//jdk提供的future编程模式简便多了,FutureTask<V> ,Callable<V>
+		//jdk提供的future编程模式简便多了,带返回值的任务FutureTask<V> (Callable<V>),不带返回值的任务FutureTask<V> (Runnable<V>)
 		System.out.println("Data = "+future1.get());//若数据还没算好,会在这儿一直等着,直到数据准备完毕
 		System.out.println("Data = "+future2.get());
+		es.shutdown();//拒绝后续任务的提交,在已有任务完成后线程池才会退出
 
 	}
 

@@ -1,5 +1,9 @@
 package com.xycode.parallelModeAndAlgorithm;
-
+/**
+ * Future模式的实现
+ * @author xycode
+ *
+ */
 public class FutureDemo {
 	static interface Data{
 		public String getResult();
@@ -28,7 +32,7 @@ public class FutureDemo {
 		RealData realData=null;
 		boolean isReady=false;
 		public synchronized void setRealData(RealData realData) {//等价于synchronized(this){}
-			if(isReady) return;
+			if(isReady) return; //已经准备好了数据,就不用再计算了,实际上这是一种闭锁,也是线程安全的
 			this.realData=realData;
 			isReady=true;
 			this.notifyAll();
@@ -59,13 +63,14 @@ public class FutureDemo {
 			new Thread() {
 				@Override
 				public void run() {
-					RealData realData=new RealData(queryStr);
-					future.setRealData(realData);
+					RealData realData=new RealData(queryStr);//真正的计算过程
+					future.setRealData(realData);//计算好了就将结果设置到FutureData
 				}
 			}.start();
 			return future;//这里返回的并不是真实的数据,而是一个凭证
 		}
 	}
+	
 	public static void main(String[] args) {
 		Client client1=new Client();
 		Data data1=client1.request("xycode ");//这里是立即返回一个Future凭证

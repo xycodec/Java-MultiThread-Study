@@ -10,7 +10,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 public class GoodSuspend {
 	static class PrimeProducer extends Thread{
 		private final BlockingQueue<BigInteger> queue;
-//		@GuardedBy("this")
 		public PrimeProducer(BlockingQueue<BigInteger> queue) {
 			super();
 			this.queue = queue;

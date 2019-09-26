@@ -16,7 +16,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class CacheTest {
-	
 	/*
 	 * 使用线程安全的ConcurrentHashMap来进行缓存,效果比HashMap+synchronized好一些,
 	 * 然而,当单个线程计算所需时间较久时,很有可能造成重复计算
