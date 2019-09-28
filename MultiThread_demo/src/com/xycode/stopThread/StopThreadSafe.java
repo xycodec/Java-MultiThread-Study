@@ -41,10 +41,11 @@ public class StopThreadSafe {
 		@Override
 		public void run() {
 			while(true) {
-				if(this.isInterrupted()) {//判断当前线程是否被中断,interrupted()不光判断是否被中断,并且清除当前终端状态
+				if(this.isInterrupted()) {//判断当前线程是否被中断,而interrupted()不光判断是否被中断,并且会清除当前中断状态
 					System.out.println("Thread-"+this.currentThread().getId()+" interruted!");
 					break;
 				}
+
 				synchronized(u){
 					int v=(int)(System.currentTimeMillis()/1000);
 					u.setId(v);

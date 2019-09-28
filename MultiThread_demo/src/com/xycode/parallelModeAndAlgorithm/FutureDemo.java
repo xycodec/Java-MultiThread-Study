@@ -9,10 +9,13 @@ public class FutureDemo {
 		public String getResult();
 	}
 	static class RealData implements Data{
-		String result;
-		public RealData(String para) {//真实数据,生成的速度较慢
+		String result;		
+		public RealData(String para,int count) {//真实数据,生成的速度较慢
+			if(count<0) {
+				throw new NegativeArraySizeException(String.valueOf(count));
+			}
 			StringBuffer sb=new StringBuffer();
-			for(int i=0;i<10;++i) {
+			for(int i=0;i<count;++i) {
 				sb.append(para);
 				try {
 					Thread.sleep(100);
@@ -59,12 +62,18 @@ public class FutureDemo {
 	
 	static class Client{
 		FutureData future=new FutureData();
-		public Data request(final String queryStr) {
+		public Data request(final String queryStr,final int count) {
 			new Thread() {
 				@Override
 				public void run() {
-					RealData realData=new RealData(queryStr);//真正的计算过程
-					future.setRealData(realData);//计算好了就将结果设置到FutureData
+					try {
+						RealData realData=new RealData(queryStr,count);//真正的计算过程
+						future.setRealData(realData);//计算好了就将结果设置到FutureData	
+					}catch (Exception e) {
+						System.err.println("illegal negative size!");
+						e.printStackTrace();
+					}
+			
 				}
 			}.start();
 			return future;//这里返回的并不是真实的数据,而是一个凭证
@@ -73,9 +82,11 @@ public class FutureDemo {
 	
 	public static void main(String[] args) {
 		Client client1=new Client();
-		Data data1=client1.request("xycode ");//这里是立即返回一个Future凭证
 		Client client2=new Client();
-		Data data2=client2.request("xycodec ");//这里是立即返回一个Future凭证
+
+		Data data1=client1.request("xycode ",10);//这里是立即返回一个Future凭证
+		Data data2=client2.request("xycodec ",20);//这里是立即返回一个Future凭证
+
 		System.out.println("Request Finished!");
 		//这里可以处理其它业务逻辑
 		System.out.println("Handle Others...");

@@ -43,7 +43,7 @@ public class GoodSuspend {
 		t.start();
 		
 		for(int i=0;i<200;++i) {
-			System.out.println(queue.take());
+			System.out.println(queue.take());//put的速度快于take的速度
 			Thread.sleep(10);
 		}
 		
