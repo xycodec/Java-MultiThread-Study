@@ -18,7 +18,7 @@ public class StaticSingleton {
 	}
 	
 	public static StaticSingleton GetInstance() {
-		return SingletonHolder.instance;
+		return SingletonHolder.instance;//因为Java内存模型保证对象的创建是线程安全的,所以这种方式的单例模式也是线程安全的
 	}
 	public static void main(String[] args) {
 		System.out.println(StaticSingleton.STATUS);//只打印了STATUS,证明此时没有创建对象
