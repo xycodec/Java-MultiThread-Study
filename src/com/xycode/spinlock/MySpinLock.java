@@ -15,6 +15,7 @@ public class MySpinLock {
         Thread thread=Thread.currentThread();
         while(!atomicReference.compareAndSet(null,thread)){
 //            System.err.println("Thread-"+thread.getId()+" fail to acquire lock");
+            thread.yield();//让出CPU,减少锁竞争,不过不保证一定有效...
         }
     }
 

@@ -8,6 +8,8 @@ public class LockObject {
     public static int cnt3=0;
     public static int cnt4=0;
     //在这里synchronized(this){}与synchronized修饰方法的效果是一样的
+
+    Object lock=new Object();
     public void inc(){
         try {
             TimeUnit.MILLISECONDS.sleep(200);
@@ -35,7 +37,6 @@ public class LockObject {
 
     //上面的inc3()改成这样就线程安全了,因为lock是LockObject的成员变量,和this是一一对应的,
     // 效果也和synchronized(this){}一样
-    Object lock=new Object();
     public void inc3(){
         synchronized (lock){
             ++cnt3;
