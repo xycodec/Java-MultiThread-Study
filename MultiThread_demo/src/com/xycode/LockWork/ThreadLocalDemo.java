@@ -18,7 +18,7 @@ public class ThreadLocalDemo{
 	static ExecutorService es=Executors.newFixedThreadPool(THREAD_COUNT);
 	static Random r=new Random(1234);
 	
-	static ThreadLocal<Random> tr=new ThreadLocal<>() {//ThreadLocal model,为每个线程生成一个本地数据,避免锁竞争
+	static ThreadLocal<Random> tr=new ThreadLocal<Random>() {//ThreadLocal model,为每个线程生成一个本地数据,避免锁竞争
 		protected Random initialValue() {
 			return new Random(1234);
 		}

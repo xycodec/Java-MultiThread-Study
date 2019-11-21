@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="disruptor-3.4.2">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/MultiThread_demo/lib/disruptor-3.4.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/MultiThread_demo/lib/jmatrices0.6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
