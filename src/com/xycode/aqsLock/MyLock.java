@@ -97,17 +97,14 @@ public class MyLock implements Lock {
         Thread[] t=new Thread[10];
         final CountDownLatch countDownLatch=new CountDownLatch(t.length);
         for(int i=0;i<t.length;++i){
-            t[i]=new Thread(){
-                @Override
-                public void run() {
-                    for(int i=0;i<10000;++i){
-                        ++cnt[0];
-                    }
-                    countDownLatch.countDown();
+            t[i]= new Thread(() -> {
+                for(int i1 = 0; i1 <10000; ++i1){
+                    ++cnt[0];
                 }
-            };
+                countDownLatch.countDown();
+            });
         }
-        for(int i=0;i<t.length;++i) t[i].start();
+        for (Thread thread : t) thread.start();
         try {
             countDownLatch.await();
         } catch (InterruptedException e) {
@@ -123,35 +120,28 @@ public class MyLock implements Lock {
         final CyclicBarrier cyclicBarrier=new CyclicBarrier(t.length+1);
         MyLock lock=new MyLock();
         for(int i=0;i<t.length;++i){
-            t[i]=new Thread(){
-                @Override
-                public void run() {
+            t[i]= new Thread(() -> {
+                try {
+                    lock.lock();//可重入锁
+                    lock.lock();
+                    for(int i1 = 0; i1 <10000; ++i1){
+                        ++cnt[0];
+                    }
+                }finally {
+                    lock.unlock();
+                    lock.unlock();
                     try {
-                        lock.lock();//可重入锁
-                        lock.lock();
-                        for(int i=0;i<10000;++i){
-                            ++cnt[0];
-                        }
-                    }finally {
-                        lock.unlock();
-                        lock.unlock();
-                        try {
-                            cyclicBarrier.await();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        } catch (BrokenBarrierException e) {
-                            e.printStackTrace();
-                        }
+                        cyclicBarrier.await();
+                    } catch (InterruptedException | BrokenBarrierException e) {
+                        e.printStackTrace();
                     }
                 }
-            };
+            });
         }
-        for(int i=0;i<t.length;++i) t[i].start();
+        for (Thread thread : t) thread.start();
         try {
             cyclicBarrier.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (BrokenBarrierException e) {
+        } catch (InterruptedException | BrokenBarrierException e) {
             e.printStackTrace();
         }
         Assert.assertEquals(cnt[0],10*10000);

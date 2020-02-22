@@ -1,6 +1,7 @@
 package com.xycode.synchronizedDemo;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class LockObject {
     public static int cnt=0;

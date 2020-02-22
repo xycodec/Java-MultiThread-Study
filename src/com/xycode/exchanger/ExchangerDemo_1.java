@@ -17,35 +17,30 @@ public class ExchangerDemo_1 {
     public static void main(String[] args) {
         Exchanger<Long> exchanger=new Exchanger<>();
         final CountDownLatch countDownLatch=new CountDownLatch(2);
-        new Thread(){
-            @Override
-            public void run() {
-                Thread thread=Thread.currentThread();
-                try {
-                    TimeUnit.SECONDS.sleep(1);
-                    System.out.println("Thread-"+thread.getId()+" arrive exchange point...");
-                    System.out.println("Thread-"+thread.getId()+" get peer's ID = "+exchanger.exchange(thread.getId()));//交换点
-                    countDownLatch.countDown();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        new Thread(() -> {
+            Thread thread=Thread.currentThread();
+            try {
+                TimeUnit.SECONDS.sleep(1);
+                System.out.println("Thread-"+thread.getId()+" arrive exchange point...");
+                System.out.println("Thread-"+thread.getId()+" get peer's ID = "+exchanger.exchange(thread.getId()));//交换点
+                countDownLatch.countDown();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-        }.start();
-        new Thread(){
-            @Override
-            public void run() {
-                Thread thread=Thread.currentThread();
-                try {
-                    TimeUnit.SECONDS.sleep(3);//这里要慢一点,实际上另一端即使早到达交换点,也会阻塞在那儿,直到这段也到达交换点
-                    System.out.println("Thread-"+thread.getId()+" arrive exchange point...");
-                    System.out.println("Thread-"+thread.getId()+" get peer's ID = "+exchanger.exchange(thread.getId()));//交换点
-                    countDownLatch.countDown();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        }).start();
 
+        new Thread(() -> {
+            Thread thread=Thread.currentThread();
+            try {
+                TimeUnit.SECONDS.sleep(3);//这里要慢一点,实际上另一端即使早到达交换点,也会阻塞在那儿,直到这段也到达交换点
+                System.out.println("Thread-"+thread.getId()+" arrive exchange point...");
+                System.out.println("Thread-"+thread.getId()+" get peer's ID = "+exchanger.exchange(thread.getId()));//交换点
+                countDownLatch.countDown();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-        }.start();
+
+        }).start();
 
         try {
             countDownLatch.await();
