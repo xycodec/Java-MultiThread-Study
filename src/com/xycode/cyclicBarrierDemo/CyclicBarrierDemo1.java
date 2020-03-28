@@ -7,8 +7,9 @@ import java.util.concurrent.TimeUnit;
 public class CyclicBarrierDemo1 {
     /**
      * 相比CountDownLatch,CyclicBarrier的本质区别是等待的主体不一样,CountDownLatch.await()阻塞的是主线程的代码,
-     * 而CyclicBarrier.await()阻塞的是当前线程的代码.
-     * 至于像CyclicBarrier可以重用,CountDownLatch不可重用这样的区别,只是细枝末节,不是本质区分.
+     * 而CyclicBarrier.await()阻塞的是任务线程的代码.这样就导致CountDownLatch是在主线程中await任务线程执行完毕
+     * 而CyclicBarrier是在任务线程中await其它(所有)任务线程执行完毕
+     * 至于像CyclicBarrier可以重用,CountDownLatch不可重用这样的区别,只是细枝末节,不是本质区别.
      */
     private static CyclicBarrier cyclicBarrier=new CyclicBarrier(5);
 

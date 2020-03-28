@@ -1,6 +1,7 @@
 package com.xycode.synchronizedDemo.LockPromote;
 
 import org.openjdk.jol.info.ClassLayout;
+import org.testng.annotations.Test;
 
 import java.nio.ByteOrder;
 import java.util.*;
@@ -21,10 +22,15 @@ public class ObjectHeader {
 //        byte[] array=new byte[100];
     }
 
+    /**
+     * 获得二进制数据
+     * @param o
+     * @return
+     */
     public static String getObjectHeader(Object o){
         ByteOrder order=ByteOrder.nativeOrder();//字节序
         String table=ClassLayout.parseInstance(o).toPrintable();
-        Pattern p=Pattern.compile("(0|1){8}");
+        final Pattern p=Pattern.compile("(0|1){8}");
         Matcher matcher=p.matcher(table);
         List<String> header=new ArrayList<>();
         while(matcher.find()){
@@ -43,7 +49,8 @@ public class ObjectHeader {
 
     /**
      * 针对64bit jvm的解析对象头函数
-     * 在64bit jvm中,对象头有两个部分: Mark Word和Class Pointer, Mark Word占8字节,Class Pointer占4字节
+     * 在64bit jvm中,对象头有两个部分: Mark Word和Class Pointer, Mark Word占8字节,Class Pointer則看具体情况4字节或8字节
+     *                              Class Pointer占4字节(64bit JVM开启压缩指针选项(默认是开启的),不开启的话就是8个字节)
      * @param s 对象头的二进制形式字符串(每8位,使用一个空格分开)
      */
     public static void parseObjectHeader(String s){
@@ -85,6 +92,49 @@ public class ObjectHeader {
     }
 
 
+    @Test
+    public void testBiasedLock(){
+        //需要禁止偏向锁延迟: -XX:BiasedLockingStartupDelay=0
+        Obj o=new Obj();
+        parseObjectHeader(getObjectHeader(o));
+        synchronized (o){
+            parseObjectHeader(getObjectHeader(o));
+        }
+    }
+
+    @Test
+    public void testLightLock(){
+        //需要禁止偏向锁延迟: -XX:BiasedLockingStartupDelay=0
+        Obj o=new Obj();
+        parseObjectHeader(getObjectHeader(o));
+        synchronized (o){
+            parseObjectHeader(getObjectHeader(o));
+        }
+        //升级为轻量级锁,因为下面的线程又占用了o,注意是上面先执行完后,才开启下面这个线程,因此不会升级为重量级锁
+        new Thread(()->{
+            synchronized (o){
+                parseObjectHeader(getObjectHeader(o));
+            }
+        }).start();
+    }
+
+    @Test
+    public void testHeavyLock(){
+        //这里没有禁止偏向锁延迟,所以最初是无锁状态
+        Obj o=new Obj();
+        parseObjectHeader(getObjectHeader(o));
+        synchronized (o){
+            parseObjectHeader(getObjectHeader(o));
+        }
+        //重量级锁
+        for(int i=0;i<2;++i)//线程数大于1时(交错执行),会升级成重量级锁
+            new Thread(()->{
+                synchronized (o){
+                    parseObjectHeader(getObjectHeader(o));
+                }
+            }).start();
+    }
+
     public static void main(String[] args) {
         /**
          * Mark Word 占 8 字节
@@ -97,11 +147,11 @@ public class ObjectHeader {
          * 00: 轻量级锁
          * 10: 重量级锁
          *
-         * 11: GC标记,当为该值是,偏向锁标志位必定为0
+         * 11: GC标记,这种情况下,偏向锁标志位必定为0
          */
         Obj o=new Obj();
 //        测试synchronized锁升级的情况,若要立即查看测试情况,需要禁止偏向锁延迟: -XX:BiasedLockingStartupDelay=0
-//        开启偏向锁: -XX:+UseBiasedLocking=0, jdk6开始就默认开启了,不开启就是先使用轻量级锁
+//        开启偏向锁: -XX:+UseBiasedLocking=0, jdk6开始就默认开启了,不开启的话就是先使用轻量级锁
 //        System.out.println(o.hashCode());//notice: 调用hashcode后就没有偏向锁了...(因为bit位置被占了)
 
         //main线程,偏向锁
